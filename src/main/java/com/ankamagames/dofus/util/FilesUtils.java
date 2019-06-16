@@ -32,19 +32,43 @@ public class FilesUtils {
     }
 
     /**
-     * Get data out of the NameId json file
+     * Get data out of the MessageNameId json file
      *
      * @return The data
-     * @throws IOException Exception if the process fail
      */
-    public static Map<String, String> parseNameId() throws IOException {
-        InputStream input = FilesUtils.class.getClassLoader().getResourceAsStream("NameId.json");
-        String result = IOUtils.toString(input, "UTF-8");
-        ObjectMapper mapper = new ObjectMapper();
-        TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {
-        };
-        return mapper.readValue(result, typeRef);
+    public static Map<String, String> parseMessageNameId() {
+        InputStream input = FilesUtils.class.getClassLoader().getResourceAsStream("MessageNameId.json");
+        try {
+            String result = IOUtils.toString(input, "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {
+            };
+            return mapper.readValue(result, typeRef);
+        } catch (IOException e) {
+            log.error(e);
+            return null;
+        }
     }
+
+    /**
+     * Get data out of the TypeNameId json file
+     *
+     * @return The data
+     */
+    public static Map<String, String> parseTypeNameId() {
+        InputStream input = FilesUtils.class.getClassLoader().getResourceAsStream("TypeNameId.json");
+        try {
+            String result = IOUtils.toString(input, "UTF-8");
+            ObjectMapper mapper = new ObjectMapper();
+            TypeReference<HashMap<String, String>> typeRef = new TypeReference<HashMap<String, String>>() {
+            };
+            return mapper.readValue(result, typeRef);
+        } catch (IOException e) {
+            log.error(e);
+        }
+        return null;
+    }
+
 
     /**
      * Get data out of the Version json file

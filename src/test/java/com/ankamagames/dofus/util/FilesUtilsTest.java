@@ -9,6 +9,6 @@ public class FilesUtilsTest {
 
     @Test
     public void testParseNameId() throws IOException {
-        Assert.assertNotNull(FilesUtils.parseNameId());
+        Assert.assertNotNull(FilesUtils.parseMessageNameId());
     }
 }

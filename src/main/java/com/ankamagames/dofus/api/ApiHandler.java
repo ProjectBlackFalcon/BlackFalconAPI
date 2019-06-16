@@ -13,24 +13,28 @@ public class ApiHandler {
 
     private DofusConnector connector;
 
+    public static final String CONNECT = "connect";
+    public static final String STATUS = "status";
+    public static final String SERVER_DOWN = "server down";
+
     public ApiHandler(final ApiServer server) {
         connector = new DofusConnector(server);
     }
 
     public void handleMessage(final Command command) {
         switch (command.getCommand()) {
-            case "connect":
+            case CONNECT:
                 handleConnectMessage(command.getParameters());
                 break;
         }
     }
 
-    private void handleConnectMessage(final Map<String, String> parameters) {
+    private void handleConnectMessage(final Map<String, Object> parameters) {
         BotInfo botInfo = new BotInfo(
-            parameters.get("account"),
-            parameters.get("password"),
-            parameters.get("name"),
-            parameters.get("server")
+            (String) parameters.get("username"),
+            (String) parameters.get("password"),
+            (String) parameters.get("name"),
+            (int) parameters.get("serverId")
         );
         this.connector.setBotInfo(botInfo);
 

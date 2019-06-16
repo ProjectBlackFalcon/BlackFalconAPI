@@ -5,13 +5,13 @@ public class BotInfo {
     private String account;
     private String password;
     private String name;
-    private String server;
+    private int serverId;
 
-    public BotInfo(final String account, final String password, final String name, final String server) {
+    public BotInfo(final String account, final String password, final String name, final int serverId) {
         this.account = account;
         this.password = password;
         this.name = name;
-        this.server = server;
+        this.serverId = serverId;
     }
 
     public String getAccount() {
@@ -38,11 +38,11 @@ public class BotInfo {
         this.name = name;
     }
 
-    public String getServer() {
-        return server;
+    public int getServerId() {
+        return serverId;
     }
 
-    public void setServer(final String server) {
-        this.server = server;
+    public void setServerId(final int serverId) {
+        this.serverId = serverId;
     }
 }

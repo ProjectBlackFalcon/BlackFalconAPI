@@ -17,7 +17,9 @@ import com.ankamagames.dofus.network.utils.DofusDataReader;
 import com.ankamagames.dofus.network.utils.DofusDataWriter;
 import com.ankamagames.dofus.util.FilesUtils;
 import com.ankamagames.dofus.util.NetworkUtils;
+import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 
 public class DofusConnector implements Runnable {
 
@@ -26,7 +28,7 @@ public class DofusConnector implements Runnable {
     private static final String IP = "52.17.231.202";
     private static final int PORT = 443;
 
-    public static Map<String, String> nameId;
+    private Map<String, String> nameId;
 
     private Socket socket;
     private LatencyFrame latencyFrame = new LatencyFrame();
@@ -44,7 +46,7 @@ public class DofusConnector implements Runnable {
         try {
             this.server = server;
             this.handler = new Handler(this);
-            nameId = FilesUtils.parseNameId();
+            nameId = FilesUtils.parseMessageNameId();
             socket = new Socket(IP, PORT);
         } catch (IOException e) {
             log.error(e);
@@ -130,27 +132,44 @@ public class DofusConnector implements Runnable {
 
     /**
      * Transfer the packets translated to the client and handle some of them.
-     * @param id id of the packet
+     *
+     * @param id      id of the packet
      * @param content content of the packet
      */
     private void TreatPacket(int id, byte[] content) {
-        DofusDataReader dataReader = new DofusDataReader(new ByteArrayInputStream(content));
-       log.debug("[Receiving] packet : " + id + " - " + nameId.get(String.valueOf(id)));
-        try {
-            Object clazz = Class.forName(nameId.get(String.valueOf(id))).getConstructor().newInstance();
-            NetworkMessage message = NetworkMessage.class.cast(clazz);
-            message.deserialize(dataReader);
-            ObjectMapper mapper = new ObjectMapper();
-            server.broadcast(mapper.writeValueAsString(message));
-            handler.handleMessage(message, id);
-        } catch (Exception e) {
-            e.printStackTrace();
-        }
+        new Thread(() -> {
+            DofusDataReader dataReader = new DofusDataReader(new ByteArrayInputStream(content));
+            try {
+                String className = nameId.get(String.valueOf(id));
+                Object clazz = Class.forName(className).getConstructor().newInstance();
+                NetworkMessage message = NetworkMessage.class.cast(clazz);
+                message.deserialize(dataReader);
+                className = className.substring(className.lastIndexOf(".") + 1);
+                log.debug("[Receiving] packet : " + id + " - " + className);
+                ObjectMapper mapper = new ObjectMapper();
+                JsonNode rootNode = mapper.createObjectNode();
+                JsonNode classNode = null;
+
+                if (message.getClass().getDeclaredFields().length > 1) {
+                    classNode = mapper.convertValue(message, JsonNode.class);
+                }
+
+                ((ObjectNode) rootNode).put("message", className);
+                ((ObjectNode) rootNode).set("content", classNode);
+                server.broadcast(mapper.writeValueAsString(rootNode));
+                handler.handleMessage(message, id);
+            } catch (Exception e) {
+                e.printStackTrace();
+            }
+        }).start();
+
     }
 
-    public void sendToServer(NetworkMessage message, int id) throws Exception {
+    public void sendToServer(NetworkMessage message) throws Exception {
         latencyFrame.latestSent();
-        log.debug("[Sending] packet : " + id + " - " + nameId.get(String.valueOf(id)));
+        int id = message.getClass().getField("PROTOCOL_ID").getInt(null);
+        String messageName = nameId.get(String.valueOf(id)).substring(nameId.get(String.valueOf(id)).lastIndexOf(".") + 1);
+        log.debug("[Sending] packet : " + id + " - " + messageName);
         ByteArrayOutputStream bous = new ByteArrayOutputStream();
         DofusDataWriter writer = new DofusDataWriter(bous);
         message.serialize(writer);
@@ -159,9 +178,19 @@ public class DofusConnector implements Runnable {
             socket.getOutputStream().write(wrote);
             socket.getOutputStream().flush();
         } catch (SocketException e) {
-            System.out.print(e);
-            System.out.println(" " + message);
+            log.error(e);
         }
+        ObjectMapper mapper = new ObjectMapper();
+        JsonNode rootNode = mapper.createObjectNode();
+        JsonNode classNode = null;
+
+        if (message.getClass().getDeclaredFields().length > 1) {
+            classNode = mapper.convertValue(message, JsonNode.class);
+        }
+
+        ((ObjectNode) rootNode).put("message", messageName);
+        ((ObjectNode) rootNode).set("content", classNode);
+        server.broadcast(mapper.writeValueAsString(rootNode));
     }
 
     public BotInfo getBotInfo() {
@@ -170,5 +199,21 @@ public class DofusConnector implements Runnable {
 
     public void setBotInfo(final BotInfo botInfo) {
         this.botInfo = botInfo;
+    }
+
+    public LatencyFrame getLatencyFrame() {
+        return latencyFrame;
+    }
+
+    public Socket getSocket() {
+        return socket;
+    }
+
+    public void setSocket(final Socket socket) {
+        this.socket = socket;
+    }
+
+    public ApiServer getServer() {
+        return server;
     }
 }

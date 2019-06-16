@@ -13,16 +13,12 @@ public class Command {
     private static final Logger log = Logger.getLogger(Command.class);
 
     private String command;
-    private Map<String, String> parameters;
-
-    public Command(final String command) {
-        this.command = command;
-    }
+    private Map<String, Object> parameters;
 
     public Command() {
     }
 
-    public Command(final String command, final Map<String, String> parameters) {
+    public Command(final String command, final Map<String, Object> parameters) {
         this.command = command;
         this.parameters = parameters;
     }
@@ -35,11 +31,11 @@ public class Command {
         this.command = command;
     }
 
-    public Map<String, String> getParameters() {
+    public Map<String, Object> getParameters() {
         return parameters;
     }
 
-    public void setParameters(final Map<String, String> parameters) {
+    public void setParameters(final Map<String, Object> parameters) {
         this.parameters = parameters;
     }
 

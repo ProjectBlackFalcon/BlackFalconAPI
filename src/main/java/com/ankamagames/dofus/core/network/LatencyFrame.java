@@ -8,12 +8,12 @@ public class LatencyFrame {
     private final int LatencyAvgBufferSize = 50;
     private List<Integer> _latencyBuffer;
     private long _latestSent;
-    public int Sequence ;
+    public int sequence;
 
     public LatencyFrame()
     {
         _latencyBuffer = new ArrayList<Integer>();
-        Sequence = 1;
+        sequence = 1;
     }
     
     public void latestSent()
