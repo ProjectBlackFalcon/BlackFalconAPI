@@ -30,7 +30,8 @@ public class ApiServer extends WebSocketServer {
 
     @Override
     public void onClose(WebSocket conn, int code, String reason, boolean remote) {
-        log.debug(conn + " has disconnected!");
+        log.debug(conn + " has disconnected! Exiting...");
+        System.exit(1);
     }
 
     @Override

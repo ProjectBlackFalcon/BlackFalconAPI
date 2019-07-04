@@ -39,13 +39,13 @@ public class DofusConnector implements Runnable {
     private int bigPacketLengthToFull;
 
     private ApiServer server;
-    private Handler handler;
+    private Processor processor;
     private BotInfo botInfo;
 
     public DofusConnector(ApiServer server) {
         try {
+            this.processor = new Processor(this);
             this.server = server;
-            this.handler = new Handler(this);
             nameId = FilesUtils.parseMessageNameId();
             socket = new Socket(IP, PORT);
         } catch (IOException e) {
@@ -155,9 +155,10 @@ public class DofusConnector implements Runnable {
                 }
 
                 ((ObjectNode) rootNode).put("message", className);
+                ((ObjectNode) rootNode).put("id", id);
                 ((ObjectNode) rootNode).set("content", classNode);
                 server.broadcast(mapper.writeValueAsString(rootNode));
-                handler.handleMessage(message, id);
+                processor.processMessage(message);
             } catch (Exception e) {
                 e.printStackTrace();
             }
@@ -189,6 +190,7 @@ public class DofusConnector implements Runnable {
         }
 
         ((ObjectNode) rootNode).put("message", messageName);
+        ((ObjectNode) rootNode).put("id", id);
         ((ObjectNode) rootNode).set("content", classNode);
         server.broadcast(mapper.writeValueAsString(rootNode));
     }
