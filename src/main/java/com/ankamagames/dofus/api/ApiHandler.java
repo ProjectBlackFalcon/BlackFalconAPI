@@ -13,6 +13,7 @@ import com.ankamagames.dofus.core.movement.CellData;
 import com.ankamagames.dofus.core.movement.CellMovement;
 import com.ankamagames.dofus.core.movement.Movement;
 import com.ankamagames.dofus.core.network.DofusConnector;
+import com.ankamagames.dofus.network.messages.game.context.roleplay.ChangeMapMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -26,6 +27,7 @@ public class ApiHandler {
 
     public static final String CONNECT = "connect";
     public static final String DISCONNECT = "disconnect";
+    public static final String CHANGE_MAP = "change_map";
     public static final String MOVE = "move";
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -44,6 +46,9 @@ public class ApiHandler {
                 break;
             case DISCONNECT:
                 handleDisconnectMessage(command.getParameters());
+                break;
+            case CHANGE_MAP:
+                handleChangeMap(command.getParameters());
                 break;
         }
     }
@@ -98,6 +103,12 @@ public class ApiHandler {
 
     private void handleDisconnectMessage(final Map<String, Object> parameters) throws IOException {
         this.connector.getSocket().close();
+    }
+
+    private void handleChangeMap(final Map<String, Object> parameters) throws Exception {
+        double targetMapId = Double.parseDouble(String.valueOf(parameters.get("target_map_id")));
+        ChangeMapMessage changeMapMessage = new ChangeMapMessage(targetMapId, false);
+        this.connector.sendToServer(changeMapMessage);
     }
 
 }

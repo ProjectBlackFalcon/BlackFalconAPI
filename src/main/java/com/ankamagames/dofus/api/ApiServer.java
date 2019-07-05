@@ -41,7 +41,8 @@ public class ApiServer extends WebSocketServer {
         try {
             handler.handleMessage(command);
         } catch (Exception e) {
-            throw new Error(e);
+            log.error(e);
+            System.exit(1);
         }
     }
 
