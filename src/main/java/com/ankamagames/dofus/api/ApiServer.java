@@ -38,7 +38,11 @@ public class ApiServer extends WebSocketServer {
     public void onMessage(WebSocket conn, String message) {
         Command command = Command.deserialize(message);
         log.debug(command);
-        handler.handleMessage(command);
+        try {
+            handler.handleMessage(command);
+        } catch (Exception e) {
+            throw new Error(e);
+        }
     }
 
     @Override

@@ -1,5 +1,6 @@
 package com.ankamagames.dofus.api;
 
+import java.io.IOException;
 import java.util.List;
 import java.util.Map;
 import java.util.stream.Collectors;
@@ -21,17 +22,19 @@ public class ApiHandler {
     private static final Logger log = Logger.getLogger(ApiHandler.class);
 
     private DofusConnector connector;
+    private ApiServer server;
 
     public static final String CONNECT = "connect";
+    public static final String DISCONNECT = "disconnect";
     public static final String MOVE = "move";
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
 
     public ApiHandler(final ApiServer server) {
-        connector = new DofusConnector(server);
+        this.server = server;
     }
 
-    public void handleMessage(final Command command) {
+    public void handleMessage(final Command command) throws Exception {
         switch (command.getCommand()) {
             case CONNECT:
                 handleConnectMessage(command.getParameters());
@@ -39,10 +42,14 @@ public class ApiHandler {
             case MOVE:
                 handleMoveMessage(command.getParameters());
                 break;
+            case DISCONNECT:
+                handleDisconnectMessage(command.getParameters());
+                break;
         }
     }
 
     private void handleConnectMessage(final Map<String, Object> parameters) {
+        this.connector = new DofusConnector(server);
         BotInfo botInfo = new BotInfo(
             (String) parameters.get("username"),
             (String) parameters.get("password"),
@@ -56,7 +63,7 @@ public class ApiHandler {
     }
 
     @SuppressWarnings("unchecked")
-    private void handleMoveMessage(final Map<String, Object> parameters) {
+    private void handleMoveMessage(final Map<String, Object> parameters) throws Exception {
         com.ankamagames.dofus.core.movement.Map map = new com.ankamagames.dofus.core.movement.Map();
         map.setUsingNewMovementSystem((Boolean) parameters.get("isUsingNewMovementSystem"));
 
@@ -85,12 +92,12 @@ public class ApiHandler {
             );
         }
 
-        try {
-            mov.performMovement();
-        } catch (Exception e) {
-            throw new Error("Failed to move", e);
-        }
+        mov.performMovement();
     }
 
+
+    private void handleDisconnectMessage(final Map<String, Object> parameters) throws IOException {
+        this.connector.getSocket().close();
+    }
 
 }
