@@ -56,7 +56,8 @@ public class Reflection {
 
     private static Class<?>[] getClassesInPackageInJar(String packageName) throws IOException, ClassNotFoundException {
         List<Class<?>> classes = new Vector<Class<?>>();
-        try (JarFile jarFile = new JarFile(CONTAINER);) {
+        packageName = packageName.replaceAll("\\.", "/");
+        try (JarFile jarFile = new JarFile(CONTAINER)) {
             Enumeration<JarEntry> jarEntries = jarFile.entries();
             JarEntry entry;
             String entryName;
