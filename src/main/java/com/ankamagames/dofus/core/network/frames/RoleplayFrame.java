@@ -1,6 +1,7 @@
 package com.ankamagames.dofus.core.network.frames;
 
 import com.ankamagames.dofus.core.network.DofusConnector;
+import com.ankamagames.dofus.network.messages.game.context.GameMapMovementMessage;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.CurrentMapMessage;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.MapComplementaryInformationsDataInHavenBagMessage;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.MapComplementaryInformationsDataMessage;
@@ -38,5 +39,11 @@ public class RoleplayFrame extends Frame {
             .get();
 
         this.connector.getBotInfo().setCellId(bot.getDisposition().getCellId());
+    }
+
+    public void process(final GameMapMovementMessage message){
+        if (message.getActorId() == this.connector.getBotInfo().getId()){
+            this.connector.getBotInfo().setCellId(message.getKeyMovements().get(message.getKeyMovements().size() - 1));
+        }
     }
 }
