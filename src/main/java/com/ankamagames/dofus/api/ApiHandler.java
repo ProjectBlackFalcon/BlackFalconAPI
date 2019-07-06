@@ -14,6 +14,10 @@ import com.ankamagames.dofus.core.movement.CellMovement;
 import com.ankamagames.dofus.core.movement.Movement;
 import com.ankamagames.dofus.core.network.DofusConnector;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.ChangeMapMessage;
+import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcDialogReplyMessage;
+import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcGenericActionRequestMessage;
+import com.ankamagames.dofus.network.messages.game.dialog.LeaveDialogRequestMessage;
+import com.ankamagames.dofus.network.messages.game.interactive.InteractiveUseRequestMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -29,6 +33,11 @@ public class ApiHandler {
     public static final String DISCONNECT = "disconnect";
     public static final String CHANGE_MAP = "change_map";
     public static final String MOVE = "move";
+    public static final String USE_INTERACTIVE = "use_interactive";
+    public static final String OPEN_NPC = "open_npc";
+    public static final String CLOSE_NPC = "close_npc";
+    public static final String ANSWER_NPC = "answer_npc";
+
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
 
@@ -48,7 +57,19 @@ public class ApiHandler {
                 handleDisconnectMessage(command.getParameters());
                 break;
             case CHANGE_MAP:
-                handleChangeMap(command.getParameters());
+                handleChangeMapMessage(command.getParameters());
+                break;
+            case USE_INTERACTIVE:
+                handleUseInteractiveMessage(command.getParameters());
+                break;
+            case OPEN_NPC:
+                handleOpenNpcMessage(command.getParameters());
+                break;
+            case CLOSE_NPC:
+                handleCloseNpcMessage(command.getParameters());
+                break;
+            case ANSWER_NPC:
+                handleReplyNpcMessage(command.getParameters());
                 break;
         }
     }
@@ -105,10 +126,35 @@ public class ApiHandler {
         this.connector.getSocket().close();
     }
 
-    private void handleChangeMap(final Map<String, Object> parameters) throws Exception {
+    private void handleChangeMapMessage(final Map<String, Object> parameters) throws Exception {
         double targetMapId = Double.parseDouble(String.valueOf(parameters.get("target_map_id")));
         ChangeMapMessage changeMapMessage = new ChangeMapMessage(targetMapId, false);
         this.connector.sendToServer(changeMapMessage);
+    }
+
+    private void handleUseInteractiveMessage(final Map<String, Object> parameters) throws Exception {
+        InteractiveUseRequestMessage message = new InteractiveUseRequestMessage();
+        message.setElemId(Integer.parseInt(String.valueOf(parameters.get("element_id"))));
+        message.setSkillInstanceUid(Integer.parseInt(String.valueOf(parameters.get("skill_uid"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleOpenNpcMessage(final Map<String, Object> parameters) throws Exception {
+        NpcGenericActionRequestMessage message = new NpcGenericActionRequestMessage();
+        message.setNpcActionId(3);
+        message.setNpcId(Integer.parseInt(String.valueOf(parameters.get("npc_id"))));
+        message.setNpcMapId(Double.parseDouble(String.valueOf(parameters.get("map_id"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleReplyNpcMessage(final Map<String, Object> parameters) throws Exception {
+        NpcDialogReplyMessage message = new NpcDialogReplyMessage();
+        message.setReplyId(Integer.parseInt(String.valueOf(parameters.get("reply_id"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleCloseNpcMessage(final Map<String, Object> parameters) throws Exception {
+        this.connector.sendToServer(new LeaveDialogRequestMessage());
     }
 
 }
