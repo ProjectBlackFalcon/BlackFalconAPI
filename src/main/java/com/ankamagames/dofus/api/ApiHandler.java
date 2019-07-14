@@ -174,7 +174,7 @@ public class ApiHandler {
         TeleportRequestMessage message = new TeleportRequestMessage();
         message.setDestinationType(0);
         message.setSourceType(0);
-        message.setMapId(Double.parseDouble(String.valueOf(parameters.get("map_id"))));
+        message.setMapId(Double.parseDouble(String.valueOf(parameters.get("target_map_id"))));
         this.connector.sendToServer(message);
     }
 
