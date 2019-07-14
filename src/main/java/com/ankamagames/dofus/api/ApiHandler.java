@@ -14,10 +14,12 @@ import com.ankamagames.dofus.core.movement.CellMovement;
 import com.ankamagames.dofus.core.movement.Movement;
 import com.ankamagames.dofus.core.network.DofusConnector;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.ChangeMapMessage;
+import com.ankamagames.dofus.network.messages.game.context.roleplay.havenbag.EnterHavenBagRequestMessage;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcDialogReplyMessage;
 import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcGenericActionRequestMessage;
 import com.ankamagames.dofus.network.messages.game.dialog.LeaveDialogRequestMessage;
 import com.ankamagames.dofus.network.messages.game.interactive.InteractiveUseRequestMessage;
+import com.ankamagames.dofus.network.messages.game.interactive.zaap.TeleportRequestMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -37,6 +39,9 @@ public class ApiHandler {
     public static final String OPEN_NPC = "open_npc";
     public static final String CLOSE_NPC = "close_npc";
     public static final String ANSWER_NPC = "answer_npc";
+    public static final String TRAVEL_BY_ZAAP = "travel_by_zaap";
+    public static final String ENTER_BAG = "enter_havenbag";
+    public static final String EXIT_BAG = "exit_havenbag";
 
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -71,6 +76,14 @@ public class ApiHandler {
             case ANSWER_NPC:
                 handleReplyNpcMessage(command.getParameters());
                 break;
+            case TRAVEL_BY_ZAAP:
+                handleTravelByZaapMessage(command.getParameters());
+                break;
+            case ENTER_BAG:
+            case EXIT_BAG:
+                handleHavenBagMessage(command.getParameters());
+                break;
+
         }
     }
 
@@ -155,6 +168,20 @@ public class ApiHandler {
 
     private void handleCloseNpcMessage(final Map<String, Object> parameters) throws Exception {
         this.connector.sendToServer(new LeaveDialogRequestMessage());
+    }
+
+    private void handleTravelByZaapMessage(final Map<String, Object> parameters) throws Exception {
+        TeleportRequestMessage message = new TeleportRequestMessage();
+        message.setDestinationType(0);
+        message.setSourceType(0);
+        message.setMapId(Double.parseDouble(String.valueOf(parameters.get("map_id"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleHavenBagMessage(final Map<String, Object> parameters) throws Exception {
+        EnterHavenBagRequestMessage message = new EnterHavenBagRequestMessage();
+        message.setHavenBagOwner((long) this.connector.getBotInfo().getId());
+        this.connector.sendToServer(message);
     }
 
 }
