@@ -150,7 +150,7 @@ public class DofusConnector implements Runnable {
                 JsonNode rootNode = mapper.createObjectNode();
                 JsonNode classNode = null;
 
-                if (message.getClass().getDeclaredFields().length > 1) {
+                if (message.getClass().getDeclaredFields().length > 1 || !message.getClass().getSuperclass().getSimpleName().equals("NetworkMessage")) {
                     classNode = mapper.convertValue(message, JsonNode.class);
                 }
 
@@ -185,7 +185,7 @@ public class DofusConnector implements Runnable {
         JsonNode rootNode = mapper.createObjectNode();
         JsonNode classNode = null;
 
-        if (message.getClass().getDeclaredFields().length > 1) {
+        if (message.getClass().getDeclaredFields().length > 1 || !message.getClass().getSuperclass().getSimpleName().equals("NetworkMessage")) {
             classNode = mapper.convertValue(message, JsonNode.class);
         }
 
