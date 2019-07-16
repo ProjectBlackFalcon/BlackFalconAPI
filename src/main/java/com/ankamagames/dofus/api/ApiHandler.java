@@ -20,6 +20,10 @@ import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcGener
 import com.ankamagames.dofus.network.messages.game.dialog.LeaveDialogRequestMessage;
 import com.ankamagames.dofus.network.messages.game.interactive.InteractiveUseRequestMessage;
 import com.ankamagames.dofus.network.messages.game.interactive.zaap.TeleportRequestMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMoveKamaMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMoveMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListFromInvMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListToInvMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -42,6 +46,11 @@ public class ApiHandler {
     public static final String TRAVEL_BY_ZAAP = "travel_by_zaap";
     public static final String ENTER_BAG = "enter_havenbag";
     public static final String EXIT_BAG = "exit_havenbag";
+    public static final String INV_TO_STORAGE = "inv_to_storage";
+    public static final String STORAGE_TO_INV = "storage_to_inv";
+    public static final String INV_TO_STORAGE_LIST = "inv_to_storage_list";
+    public static final String STORAGE_TO_INV_LIST = "storage_to_inv_list";
+    public static final String MOVE_KAMAS = "move_kamas";
 
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -82,6 +91,21 @@ public class ApiHandler {
             case ENTER_BAG:
             case EXIT_BAG:
                 handleHavenBagMessage(command.getParameters());
+                break;
+            case INV_TO_STORAGE:
+                handleInvToStorageMessage(command.getParameters());
+                break;
+            case STORAGE_TO_INV:
+                handleStorageToInvMessage(command.getParameters());
+                break;
+            case INV_TO_STORAGE_LIST:
+                handleListInvToStorageMessage(command.getParameters());
+                break;
+            case STORAGE_TO_INV_LIST:
+                handleListStorageToInvMessage(command.getParameters());
+                break;
+            case MOVE_KAMAS:
+                handleMoveKamasMessage(command.getParameters());
                 break;
 
         }
@@ -183,5 +207,40 @@ public class ApiHandler {
         message.setHavenBagOwner((long) this.connector.getBotInfo().getId());
         this.connector.sendToServer(message);
     }
+
+    private void handleInvToStorageMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectMoveMessage message = new ExchangeObjectMoveMessage();
+        message.setObjectUID(Integer.parseInt(String.valueOf(parameters.get("item_uid"))));
+        message.setQuantity(Integer.parseInt(String.valueOf(parameters.get("quantity"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleStorageToInvMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectMoveMessage message = new ExchangeObjectMoveMessage();
+        message.setObjectUID(Integer.parseInt(String.valueOf(parameters.get("item_uid"))));
+        message.setQuantity(- Integer.parseInt(String.valueOf(parameters.get("quantity"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleListInvToStorageMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectTransfertListFromInvMessage message = new ExchangeObjectTransfertListFromInvMessage();
+        message.setIds((List<Integer>) parameters.get("items_uids"));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleListStorageToInvMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectTransfertListToInvMessage message = new ExchangeObjectTransfertListToInvMessage();
+        message.setIds((List<Integer>) parameters.get("items_uids"));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleMoveKamasMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectMoveKamaMessage message = new ExchangeObjectMoveKamaMessage();
+        message.setQuantity(Long.parseLong(String.valueOf(parameters.get("quantity"))));
+        this.connector.sendToServer(message);
+    }
+
+
+
 
 }
