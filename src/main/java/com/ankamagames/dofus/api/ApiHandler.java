@@ -24,6 +24,7 @@ import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeO
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMoveMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListFromInvMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListToInvMessage;
+import com.ankamagames.dofus.network.messages.security.CheckFileMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -51,6 +52,7 @@ public class ApiHandler {
     public static final String INV_TO_STORAGE_LIST = "inv_to_storage_list";
     public static final String STORAGE_TO_INV_LIST = "storage_to_inv_list";
     public static final String MOVE_KAMAS = "move_kamas";
+    public static final String CHECK_FILE = "check_file_message";
 
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -107,7 +109,9 @@ public class ApiHandler {
             case MOVE_KAMAS:
                 handleMoveKamasMessage(command.getParameters());
                 break;
-
+            case CHECK_FILE:
+                handleCheckFileMessage(command.getParameters());
+                break;
         }
     }
 
@@ -218,7 +222,7 @@ public class ApiHandler {
     private void handleStorageToInvMessage(final Map<String, Object> parameters) throws Exception {
         ExchangeObjectMoveMessage message = new ExchangeObjectMoveMessage();
         message.setObjectUID(Integer.parseInt(String.valueOf(parameters.get("item_uid"))));
-        message.setQuantity(- Integer.parseInt(String.valueOf(parameters.get("quantity"))));
+        message.setQuantity(-Integer.parseInt(String.valueOf(parameters.get("quantity"))));
         this.connector.sendToServer(message);
     }
 
@@ -240,7 +244,13 @@ public class ApiHandler {
         this.connector.sendToServer(message);
     }
 
-
+    private void handleCheckFileMessage(final Map<String, Object> parameters) throws Exception {
+        CheckFileMessage message = new CheckFileMessage();
+        message.setType(Integer.parseInt(String.valueOf(parameters.get("type"))));
+        message.setValue(String.valueOf(parameters.get("value")));
+        message.setFilenameHash(String.valueOf(parameters.get("filenameHash")));
+        this.connector.sendToServer(message);
+    }
 
 
 }
