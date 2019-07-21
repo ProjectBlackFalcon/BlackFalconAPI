@@ -182,7 +182,7 @@ public class ApiHandler {
 
     private void handleOpenNpcMessage(final Map<String, Object> parameters) throws Exception {
         NpcGenericActionRequestMessage message = new NpcGenericActionRequestMessage();
-        message.setNpcActionId(3);
+        message.setNpcActionId(Integer.parseInt(String.valueOf(parameters.get("action_id"))));
         message.setNpcId(Integer.parseInt(String.valueOf(parameters.get("npc_id"))));
         message.setNpcMapId(Double.parseDouble(String.valueOf(parameters.get("map_id"))));
         this.connector.sendToServer(message);
