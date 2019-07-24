@@ -15,6 +15,9 @@ public class BotInfo {
     private double mapId;
     private double id;
 
+    private int auctionHouseCategory = 0;
+    private int auctionHouseItem = 0;
+
     public BotInfo(final String account, final String password, final String name, final int serverId) {
         this.account = account;
         this.password = password;
@@ -100,5 +103,21 @@ public class BotInfo {
 
     public void setServerId(final int serverId) {
         this.serverId = serverId;
+    }
+
+    public int getAuctionHouseCategory() {
+        return auctionHouseCategory;
+    }
+
+    public void setAuctionHouseCategory(final int auctionHouseCategory) {
+        this.auctionHouseCategory = auctionHouseCategory;
+    }
+
+    public int getAuctionHouseItem() {
+        return auctionHouseItem;
+    }
+
+    public void setAuctionHouseItem(final int auctionHouseItem) {
+        this.auctionHouseItem = auctionHouseItem;
     }
 }

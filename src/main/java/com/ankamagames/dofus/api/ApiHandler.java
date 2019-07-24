@@ -20,8 +20,12 @@ import com.ankamagames.dofus.network.messages.game.context.roleplay.npc.NpcGener
 import com.ankamagames.dofus.network.messages.game.dialog.LeaveDialogRequestMessage;
 import com.ankamagames.dofus.network.messages.game.interactive.InteractiveUseRequestMessage;
 import com.ankamagames.dofus.network.messages.game.interactive.zaap.TeleportRequestMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeBidHouseBuyMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeBidHouseSearchMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeBidHouseTypeMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMoveKamaMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMoveMessage;
+import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectMovePricedMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListFromInvMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListToInvMessage;
 import com.ankamagames.dofus.network.messages.security.CheckFileMessage;
@@ -53,6 +57,10 @@ public class ApiHandler {
     public static final String STORAGE_TO_INV_LIST = "storage_to_inv_list";
     public static final String MOVE_KAMAS = "move_kamas";
     public static final String CHECK_FILE = "check_file_message";
+    public static final String AH_CATEGORY = "auctionh_select_category";
+    public static final String AH_ITEM = "auctionh_select_item";
+    public static final String AH_BUY = "auctionh_buy_item";
+    public static final String AH_SELL = "auctionh_sell_item";
 
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -111,6 +119,18 @@ public class ApiHandler {
                 break;
             case CHECK_FILE:
                 handleCheckFileMessage(command.getParameters());
+                break;
+            case AH_CATEGORY:
+                handleSelectCategoryMessage(command.getParameters());
+                break;
+            case AH_ITEM:
+                handleSelectItemMessage(command.getParameters());
+                break;
+            case AH_BUY:
+                handleBuyItemMessage(command.getParameters());
+                break;
+            case AH_SELL:
+                handleSellItemMessage(command.getParameters());
                 break;
         }
     }
@@ -252,5 +272,51 @@ public class ApiHandler {
         this.connector.sendToServer(message);
     }
 
+    private void handleSelectCategoryMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeBidHouseTypeMessage message = new ExchangeBidHouseTypeMessage();
 
+        if (this.connector.getBotInfo().getAuctionHouseCategory() == 0) {
+            message.setType(this.connector.getBotInfo().getAuctionHouseCategory());
+            message.setFollow(false);
+            this.connector.sendToServer(message);
+        }
+
+        int newType = Integer.parseInt(String.valueOf(parameters.get("category_id")));
+        this.connector.getBotInfo().setAuctionHouseCategory(newType);
+        message.setType(newType);
+        message.setFollow(true);
+        this.connector.sendToServer(message);
+    }
+
+    private void handleSelectItemMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeBidHouseSearchMessage message = new ExchangeBidHouseSearchMessage();
+
+        if (this.connector.getBotInfo().getAuctionHouseItem() == 0) {
+            message.setGenId(this.connector.getBotInfo().getAuctionHouseItem());
+            message.setFollow(false);
+            this.connector.sendToServer(message);
+        }
+
+        int newType = Integer.parseInt(String.valueOf(parameters.get("general_id")));
+        this.connector.getBotInfo().setAuctionHouseItem(newType);
+        message.setGenId(newType);
+        message.setFollow(true);
+        this.connector.sendToServer(message);
+    }
+
+    private void handleBuyItemMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeBidHouseBuyMessage message = new ExchangeBidHouseBuyMessage();
+        message.setUid(Integer.parseInt(String.valueOf(parameters.get("unique_id"))));
+        message.setQty(Integer.parseInt(String.valueOf(parameters.get("quantity"))));
+        message.setPrice(Integer.parseInt(String.valueOf(parameters.get("price"))));
+        this.connector.sendToServer(message);
+    }
+
+    private void handleSellItemMessage(final Map<String, Object> parameters) throws Exception {
+        ExchangeObjectMovePricedMessage message = new ExchangeObjectMovePricedMessage();
+        message.setObjectUID(Integer.parseInt(String.valueOf(parameters.get("unique_id"))));
+        message.setQuantity(Integer.parseInt(String.valueOf(parameters.get("quantity"))));
+        message.setPrice(Integer.parseInt(String.valueOf(parameters.get("price"))));
+        this.connector.sendToServer(message);
+    }
 }
