@@ -275,7 +275,7 @@ public class ApiHandler {
     private void handleSelectCategoryMessage(final Map<String, Object> parameters) throws Exception {
         ExchangeBidHouseTypeMessage message = new ExchangeBidHouseTypeMessage();
 
-        if (this.connector.getBotInfo().getAuctionHouseCategory() == 0) {
+        if (this.connector.getBotInfo().getAuctionHouseCategory() != 0) {
             message.setType(this.connector.getBotInfo().getAuctionHouseCategory());
             message.setFollow(false);
             this.connector.sendToServer(message);
@@ -291,7 +291,7 @@ public class ApiHandler {
     private void handleSelectItemMessage(final Map<String, Object> parameters) throws Exception {
         ExchangeBidHouseSearchMessage message = new ExchangeBidHouseSearchMessage();
 
-        if (this.connector.getBotInfo().getAuctionHouseItem() == 0) {
+        if (this.connector.getBotInfo().getAuctionHouseItem() != 0) {
             message.setGenId(this.connector.getBotInfo().getAuctionHouseItem());
             message.setFollow(false);
             this.connector.sendToServer(message);
