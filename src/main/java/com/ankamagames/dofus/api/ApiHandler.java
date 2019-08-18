@@ -136,8 +136,8 @@ public class ApiHandler {
             case AH_SELL:
                 handleSellItemMessage(command.getParameters());
                 break;
-			case ACHIEVEMENT_GET:
-				handleAcceptAchievement(command.getParameters());
+            case ACHIEVEMENT_GET:
+                handleAcceptAchievement(command.getParameters());
                 break;
         }
     }
@@ -327,16 +327,16 @@ public class ApiHandler {
         this.connector.sendToServer(message);
     }
 	
-	private void handleAcceptAchievement(final Map<String, Object> parameters) throws Exception {
+    private void handleAcceptAchievement(final Map<String, Object> parameters) throws Exception {
         AchievementRewardRequestMessage message = new AchievementRewardRequestMessage();
-        message.setAchievementId(-1)
+        message.setAchievementId(-1);
         this.connector.sendToServer(message);
 		
-		StartupActionsAllAttributionMessage message = new StartupActionsAllAttributionMessage();
+        StartupActionsAllAttributionMessage message = new StartupActionsAllAttributionMessage();
         message.setCharacterId(Integer.parseInt(String.valueOf(parameters.get("actor_id"))));
         this.connector.sendToServer(message);
 		
-		DareRewardConsumeRequestMessage message = new DareRewardConsumeRequestMessage();
+        DareRewardConsumeRequestMessage message = new DareRewardConsumeRequestMessage();
         message.setDareId(-1);
         message.setType(0);
         this.connector.sendToServer(message);
