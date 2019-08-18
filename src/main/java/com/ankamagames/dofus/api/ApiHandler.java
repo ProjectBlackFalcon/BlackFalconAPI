@@ -29,6 +29,9 @@ import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeO
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListFromInvMessage;
 import com.ankamagames.dofus.network.messages.game.inventory.exchanges.ExchangeObjectTransfertListToInvMessage;
 import com.ankamagames.dofus.network.messages.security.CheckFileMessage;
+import com.ankamagames.dofus.network.messages.game.achievement.AchievementRewardRequestMessage;
+import com.ankamagames.dofus.network.messages.game.startup.StartupActionsAllAttributionMessage;
+import com.ankamagames.dofus.network.messages.game.dare.DareRewardConsumeRequestMessage;
 
 /**
  * Handler external to the game. It will be only actions that the player/client wants.
@@ -61,6 +64,7 @@ public class ApiHandler {
     public static final String AH_ITEM = "auctionh_select_item";
     public static final String AH_BUY = "auctionh_buy_item";
     public static final String AH_SELL = "auctionh_sell_item";
+	public static final String ACHIEVEMENT_GET = "achievement_get";
 
     public static final String STATUS = "status";
     public static final String SERVER_DOWN = "server down";
@@ -131,6 +135,9 @@ public class ApiHandler {
                 break;
             case AH_SELL:
                 handleSellItemMessage(command.getParameters());
+                break;
+			case ACHIEVEMENT_GET:
+				handleAcceptAchievement(command.getParameters());
                 break;
         }
     }
@@ -317,6 +324,21 @@ public class ApiHandler {
         message.setObjectUID(Integer.parseInt(String.valueOf(parameters.get("unique_id"))));
         message.setQuantity(Integer.parseInt(String.valueOf(parameters.get("quantity"))));
         message.setPrice(Integer.parseInt(String.valueOf(parameters.get("price"))));
+        this.connector.sendToServer(message);
+    }
+	
+	private void handleAcceptAchievement(final Map<String, Object> parameters) throws Exception {
+        AchievementRewardRequestMessage message = new AchievementRewardRequestMessage();
+        message.setAchievementId(-1)
+        this.connector.sendToServer(message);
+		
+		StartupActionsAllAttributionMessage message = new StartupActionsAllAttributionMessage();
+        message.setCharacterId(Integer.parseInt(String.valueOf(parameters.get("actor_id"))));
+        this.connector.sendToServer(message);
+		
+		DareRewardConsumeRequestMessage message = new DareRewardConsumeRequestMessage();
+        message.setDareId(-1);
+        message.setType(0);
         this.connector.sendToServer(message);
     }
 }
