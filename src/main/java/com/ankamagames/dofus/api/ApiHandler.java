@@ -333,7 +333,7 @@ public class ApiHandler {
         this.connector.sendToServer(message_1);
 		
         StartupActionsAllAttributionMessage message_2 = new StartupActionsAllAttributionMessage();
-        message_2.setCharacterId(Integer.parseInt(String.valueOf(parameters.get("actor_id"))));
+        message_2.setCharacterId(Long.parseLong(String.valueOf(parameters.get("actor_id"))));
         this.connector.sendToServer(message_2);
 		
         DareRewardConsumeRequestMessage message_3 = new DareRewardConsumeRequestMessage();
