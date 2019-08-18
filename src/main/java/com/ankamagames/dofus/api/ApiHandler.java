@@ -328,17 +328,17 @@ public class ApiHandler {
     }
 	
     private void handleAcceptAchievement(final Map<String, Object> parameters) throws Exception {
-        AchievementRewardRequestMessage message = new AchievementRewardRequestMessage();
-        message.setAchievementId(-1);
-        this.connector.sendToServer(message);
+        AchievementRewardRequestMessage message_1 = new AchievementRewardRequestMessage();
+        message_1.setAchievementId(-1);
+        this.connector.sendToServer(message_1);
 		
-        StartupActionsAllAttributionMessage message = new StartupActionsAllAttributionMessage();
-        message.setCharacterId(Integer.parseInt(String.valueOf(parameters.get("actor_id"))));
-        this.connector.sendToServer(message);
+        StartupActionsAllAttributionMessage message_2 = new StartupActionsAllAttributionMessage();
+        message_2.setCharacterId(Integer.parseInt(String.valueOf(parameters.get("actor_id"))));
+        this.connector.sendToServer(message_2);
 		
-        DareRewardConsumeRequestMessage message = new DareRewardConsumeRequestMessage();
-        message.setDareId(-1);
-        message.setType(0);
-        this.connector.sendToServer(message);
+        DareRewardConsumeRequestMessage message_3 = new DareRewardConsumeRequestMessage();
+        message_3.setDareId(-1);
+        message_3.setType(0);
+        this.connector.sendToServer(message_3);
     }
 }
