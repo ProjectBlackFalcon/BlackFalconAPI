@@ -13,6 +13,7 @@ import org.apache.log4j.Logger;
 import com.ankamagames.dofus.api.ApiServer;
 import com.ankamagames.dofus.core.model.BotInfo;
 import com.ankamagames.dofus.network.NetworkMessage;
+import com.ankamagames.dofus.network.messages.common.basic.BasicPingMessage;
 import com.ankamagames.dofus.network.utils.DofusDataReader;
 import com.ankamagames.dofus.network.utils.DofusDataWriter;
 import com.ankamagames.dofus.util.FilesUtils;
@@ -28,6 +29,8 @@ public class DofusConnector implements Runnable {
     private static final String IP = "52.17.231.202";
     private static final int PORT = 443;
 
+    private static final int TIMEOUT = 30; //secondes
+
     private Map<String, String> nameId;
 
     private Socket socket;
@@ -42,11 +45,15 @@ public class DofusConnector implements Runnable {
     private Processor processor;
     private BotInfo botInfo;
 
+    private long timeLastPacket;
+    private boolean pingSent = false;
+
     public DofusConnector(ApiServer server) {
         try {
             this.processor = new Processor(this);
             this.server = server;
-            nameId = FilesUtils.parseMessageNameId();
+            this.nameId = FilesUtils.parseMessageNameId();
+            this.timeLastPacket = System.currentTimeMillis();
             socket = new Socket(IP, PORT);
         } catch (IOException e) {
             log.error(e);
@@ -64,11 +71,24 @@ public class DofusConnector implements Runnable {
 
             while (!this.socket.isClosed()) {
                 Thread.sleep(400);
+
+                if ((System.currentTimeMillis() - timeLastPacket) / 1000 > TIMEOUT && !pingSent){
+                    sendToServer(new BasicPingMessage(true));
+                    pingSent = true;
+                }
+
+                if ((System.currentTimeMillis() - timeLastPacket) / 1000 > TIMEOUT + 5 && pingSent){
+                    log.error("Connection with the game server lost... exiting websocket");
+                    System.exit(1);
+                }
+
                 if (!this.socket.isClosed()) {
                     InputStream data = this.socket.getInputStream();
                     int available = data.available();
                     byte[] buffer = new byte[available];
                     if (available > 0) {
+                        timeLastPacket = System.currentTimeMillis();
+                        pingSent = false;
                         latencyFrame.updateLatency();
                         try {
                             data.read(buffer, 0, available);
@@ -81,6 +101,7 @@ public class DofusConnector implements Runnable {
                     }
                 }
             }
+            System.out.println("Socket closed");
         } catch (Exception e) {
             log.error("Socket closed", e);
             System.exit(1);
@@ -160,7 +181,7 @@ public class DofusConnector implements Runnable {
                 server.broadcast(mapper.writeValueAsString(rootNode));
                 processor.processMessage(message);
             } catch (Exception e) {
-                e.printStackTrace();
+                log.error("Could not treat packet number " + id);
             }
         }).start();
 
